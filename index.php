@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center;">
             <p style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Developed By</p>
-            <div style="font-weight: 800; color: var(--dark); font-size: 0.9rem; letter-spacing: 1px;">TOPE TAMAD </div>
+            <div style="font-weight: 800; color: var(--dark); font-size: 0.9rem; letter-spacing: 1px;"></div>
         </div>
     </div>
 </body>
