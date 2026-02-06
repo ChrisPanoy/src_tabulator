@@ -239,7 +239,7 @@ render_navbar($_SESSION['full_name'], 'dean');
             <input type="hidden" name="add_criteria" value="1">
             <div class="form-group" style="margin-bottom: 0; flex-grow: 2;">
                 <label class="form-label" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light);">Criteria Name</label>
-                <input type="text" name="name" class="form-control" required placeholder="e.g. Technical Innovation" maxlength="255">
+                <input type="text" name="name" class="form-control" required placeholder="e.g. Technical Innovation">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light);">Weight (%)</label>
@@ -345,7 +345,7 @@ render_navbar($_SESSION['full_name'], 'dean');
             <input type="hidden" name="add_category" value="1">
             <div class="form-group" style="margin-bottom: 0; flex-grow: 1;">
                 <label class="form-label" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">New Category Name</label>
-                <input type="text" name="category_name" class="form-control" required placeholder="e.g. Technical, Design, Q&A" maxlength="255">
+                <input type="text" name="category_name" class="form-control" required placeholder="e.g. Technical, Design, Q&A">
             </div>
             <button type="submit" class="btn btn-primary" style="height: 46px; font-weight: 700;">Add Category</button>
         </form>
@@ -390,7 +390,7 @@ render_navbar($_SESSION['full_name'], 'dean');
                 
                 <div class="form-group">
                     <label class="form-label">Criteria Name</label>
-                    <input type="text" name="name" id="edit_name" class="form-control" required maxlength="255">
+                    <input type="text" name="name" id="edit_name" class="form-control" required>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">

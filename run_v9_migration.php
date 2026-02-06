@@ -14,7 +14,7 @@ if (!isset($_GET['password']) || $_GET['password'] !== $migration_password) {
     die("Unauthorized. Add ?password=YOUR_PASSWORD to the URL");
 }
 
-echo "<h2>Running v9 Migration: Increase Column Lengths</h2>";
+echo "<h2>Running v9 Migration: Remove Column Length Limits (Using TEXT)</h2>";
 echo "<pre>";
 
 try {
@@ -34,16 +34,16 @@ try {
     // Apply migrations
     echo "Applying migrations...\n";
     
-    echo "1. Updating tab_criteria.criteria_name to VARCHAR(255)...\n";
-    $pdo->exec("ALTER TABLE tab_criteria MODIFY criteria_name VARCHAR(255) NOT NULL");
+    echo "1. Updating tab_criteria.criteria_name to TEXT (unlimited length)...\n";
+    $pdo->exec("ALTER TABLE tab_criteria MODIFY criteria_name TEXT NOT NULL");
     echo "   ✓ Success\n";
     
-    echo "2. Updating tab_criteria.category to VARCHAR(255)...\n";
-    $pdo->exec("ALTER TABLE tab_criteria MODIFY category VARCHAR(255) DEFAULT 'General'");
+    echo "2. Updating tab_criteria.category to TEXT (unlimited length)...\n";
+    $pdo->exec("ALTER TABLE tab_criteria MODIFY category TEXT");
     echo "   ✓ Success\n";
     
-    echo "3. Updating tab_rubric_categories.category_name to VARCHAR(255)...\n";
-    $pdo->exec("ALTER TABLE tab_rubric_categories MODIFY category_name VARCHAR(255) NOT NULL");
+    echo "3. Updating tab_rubric_categories.category_name to TEXT (unlimited length)...\n";
+    $pdo->exec("ALTER TABLE tab_rubric_categories MODIFY category_name TEXT NOT NULL");
     echo "   ✓ Success\n\n";
     
     // Verify changes
@@ -60,7 +60,7 @@ try {
     echo "========================================\n";
     echo "✓ Migration completed successfully!\n";
     echo "========================================\n\n";
-    echo "You can now add criteria with names up to 255 characters.\n";
+    echo "You can now add criteria with UNLIMITED length (up to 65,535 characters).\n";
     echo "\n<strong style='color: red;'>IMPORTANT: Delete this file (run_v9_migration.php) after successful migration!</strong>\n";
     
 } catch (PDOException $e) {

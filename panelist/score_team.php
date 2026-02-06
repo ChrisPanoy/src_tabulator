@@ -327,6 +327,15 @@ render_navbar($_SESSION['full_name'], 'panelist');
         cursor: not-allowed;
         pointer-events: none;
     }
+
+    /* Quick Navigation Buttons */
+    .quick-nav-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    }
+    .quick-nav-btn:active {
+        transform: translateY(0);
+    }
 </style>
 
 <div class="container" style="max-width: 1000px; margin-top: 2.5rem; padding-bottom: 8rem;">
@@ -356,6 +365,80 @@ render_navbar($_SESSION['full_name'], 'panelist');
     <?php if($error): ?>
         <div class="alert alert-danger animate-fade-in"><?= $error ?></div>
     <?php endif; ?>
+
+    <!-- Quick Access Navigation -->
+    <div class="quick-nav-container" style="margin-bottom: 2rem;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem 2rem; border-radius: 16px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.5rem;"></span>
+                    <h3 style="margin: 0; color: white; font-size: 1.125rem; font-weight: 800; letter-spacing: 0.02em;">Quick Access Scoring</h3>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <?php 
+                // Generate quick access buttons based on available categories
+                $quick_nav_items = [];
+                foreach($grouped_group_criteria as $category => $criteria): 
+                    $category_lower = strtolower($category);
+                    $category_id = 'category-' . preg_replace('/[^a-z0-9]+/', '-', $category_lower);
+                    
+                    // Determine icon and color based on category
+                    $icon = '📋';
+                    $color = '#667eea';
+                    
+                    if (strpos($category_lower, 'imrad') !== false || strpos($category_lower, 'manuscript') !== false) {
+                        $icon = '📄';
+                        $color = '#4f46e5';
+                    } elseif (strpos($category_lower, 'poster') !== false) {
+                        $icon = '🖼️';
+                        $color = '#7c3aed';
+                    } elseif (strpos($category_lower, 'brochure') !== false) {
+                        $icon = '📂';
+                        $color = '#2563eb';
+                    }
+                    
+                    $quick_nav_items[] = [
+                        'id' => $category_id,
+                        'name' => $category,
+                        'icon' => $icon,
+                        'color' => $color,
+                        'count' => count($criteria)
+                    ];
+                endforeach;
+                
+                foreach($quick_nav_items as $nav_item):
+                ?>
+                    <button type="button" 
+                            onclick="jumpToCategory('<?= $nav_item['id'] ?>')" 
+                            class="quick-nav-btn"
+                            style="background: white; border: none; padding: 1rem 1.25rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 0.75rem; text-align: left;">
+                        <span style="font-size: 1.75rem;"><?= $nav_item['icon'] ?></span>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 800; color: var(--dark); font-size: 0.9375rem; margin-bottom: 0.25rem;"><?= htmlspecialchars($nav_item['name']) ?></div>
+                            <div style="font-size: 0.7rem; color: var(--text-light); font-weight: 600;"><?= $nav_item['count'] ?> Criteria</div>
+                        </div>
+                        <span style="color: <?= $nav_item['color'] ?>; font-size: 1.25rem;">→</span>
+                    </button>
+                <?php endforeach; ?>
+                
+                <?php if (!empty($members) && !empty($ind_criteria)): ?>
+                    <button type="button" 
+                            onclick="jumpToCategory('individual-evaluation')" 
+                            class="quick-nav-btn"
+                            style="background: white; border: none; padding: 1rem 1.25rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 0.75rem; text-align: left;">
+                        <span style="font-size: 1.75rem;">🎤</span>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 800; color: var(--dark); font-size: 0.9375rem; margin-bottom: 0.25rem;">Individual Scoring</div>
+                            <div style="font-size: 0.7rem; color: var(--text-light); font-weight: 600;"><?= count($members) ?> Presenters</div>
+                        </div>
+                        <span style="color: #f59e0b; font-size: 1.25rem;">→</span>
+                    </button>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
 
     <div class="step-header">
         <div class="step-item active" id="step-nav-1">
@@ -450,6 +533,7 @@ render_navbar($_SESSION['full_name'], 'panelist');
                 <?php foreach($grouped_group_criteria as $category => $criteria): 
                     // Map category to document type and display info
                     $category_lower = strtolower($category);
+                    $category_id = 'category-' . preg_replace('/[^a-z0-9]+/', '-', $category_lower);
                     $doc_info = null;
                     
                     if (strpos($category_lower, 'imrad') !== false || strpos($category_lower, 'manuscript') !== false) {
@@ -466,7 +550,7 @@ render_navbar($_SESSION['full_name'], 'panelist');
                         }
                     }
                 ?>
-                    <div class="category-card">
+                    <div class="category-card" id="<?= $category_id ?>">
                         <div class="category-header">
                             <span class="category-badge">Category: <?= htmlspecialchars($category) ?></span>
                             <div style="display: flex; align-items: center; gap: 1rem;">
@@ -668,6 +752,16 @@ render_navbar($_SESSION['full_name'], 'panelist');
             assetsBar.style.display = 'none';
         }
 
+        // Toggle quick navigation (show on steps 1 and 2, hide on step 3)
+        const quickNav = document.querySelector('.quick-nav-container');
+        if (quickNav) {
+            if (step === 1 || step === 2) {
+                quickNav.style.display = 'block';
+            } else {
+                quickNav.style.display = 'none';
+            }
+        }
+
         // Update nav
         document.querySelectorAll('.step-item').forEach((nav, idx) => {
             if (idx + 1 < step) {
@@ -792,6 +886,35 @@ render_navbar($_SESSION['full_name'], 'panelist');
             return false;
         }
     });
+
+    // Quick Navigation Function
+    function jumpToCategory(categoryId) {
+        // First, ensure we're on step 2 (scoring step)
+        changeStep(2);
+        
+        // Wait for the step transition to complete, then scroll to the category
+        setTimeout(() => {
+            const targetElement = document.getElementById(categoryId);
+            if (targetElement) {
+                // Calculate offset to account for sticky header and assets bar
+                const offset = 100; // Adjust this value based on your sticky header height
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+                
+                // Add a visual highlight effect
+                targetElement.style.transition = 'all 0.3s ease';
+                targetElement.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.3)';
+                setTimeout(() => {
+                    targetElement.style.boxShadow = '';
+                }, 2000);
+            }
+        }, 400); // Match the step transition animation duration
+    }
 
     // Auto-focus logic based on URL parameter
     window.addEventListener('DOMContentLoaded', (event) => {
