@@ -149,7 +149,7 @@ render_navbar($_SESSION['full_name'], 'dean', '../', "Capstone Groups");
     </div>
 
     <!-- Team Matrix -->
-    <h2 style="margin-bottom: 2rem; font-size: 1.5rem; letter-spacing: -0.01em;">Active Capstone Groups (Updated)</h2>
+    <h2 style="margin-bottom: 2rem; font-size: 1.5rem; letter-spacing: -0.01em;">Active Capstone Groups</h2>
     <div class="dashboard-grid">
         <?php foreach($teams as $team): ?>
             <div class="card stat-card animate-fade-in primary-top" style="display: flex; flex-direction: column; padding: 2rem;">

@@ -4,6 +4,20 @@ require_once '../includes/functions.php';
 require_once '../components/ui.php';
 requireRole('student');
 
+// --- Auto-Repair Database for Live Server (One-time check) ---
+try {
+    $stmt_enum = $pdo->query("SHOW COLUMNS FROM tab_submissions LIKE 'file_type'");
+    $enum_row = $stmt_enum->fetch();
+    if ($enum_row && (strpos($enum_row['Type'], 'teaser') === false || strpos($enum_row['Type'], 'imrad') === false)) {
+        // Broaden enum temporarily to safely convert emrad to imrad
+        $pdo->exec("ALTER TABLE tab_submissions MODIFY COLUMN file_type ENUM('emrad', 'imrad', 'poster', 'brochure', 'teaser') NOT NULL");
+        $pdo->exec("UPDATE tab_submissions SET file_type = 'imrad' WHERE file_type = 'emrad'");
+        // Finalize clean enum
+        $pdo->exec("ALTER TABLE tab_submissions MODIFY COLUMN file_type ENUM('imrad', 'poster', 'brochure', 'teaser') NOT NULL");
+    }
+} catch (Exception $e) { /* Fail silently if no permission or already fixed */ }
+// -------------------------------------------------------------
+
 $student_id = $_SESSION['user_id'];
 $message = '';
 $error = '';
