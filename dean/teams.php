@@ -173,20 +173,48 @@ render_navbar($_SESSION['full_name'], 'dean', '../', "Capstone Groups");
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
                     <div style="flex: 1; padding-right: 1rem;">
                         <span style="font-size: 0.65rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.25rem;">Group Entry</span>
-                        <h3 style="margin: 0; font-size: 1.5rem; letter-spacing: -0.02em; color: var(--primary-dark); line-height: 1.1;"><?= htmlspecialchars($team['team_name']) ?></h3>
+                        
+                        <!-- Display Name -->
+                        <h3 id="view-name-<?= $team['id'] ?>" style="margin: 0; font-size: 1.5rem; letter-spacing: -0.02em; color: var(--primary-dark); line-height: 1.1;"><?= htmlspecialchars($team['team_name']) ?></h3>
+                        
+                        <!-- Edit Name Input -->
+                        <input type="text" id="edit-name-<?= $team['id'] ?>" name="team_name" form="form-edit-<?= $team['id'] ?>" 
+                               value="<?= htmlspecialchars($team['team_name']) ?>" class="form-control" 
+                               style="display: none; height: 40px; margin-top: 5px; font-weight: 800; border: 2px solid var(--primary);">
                     </div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button onclick="openEditModal(<?= htmlspecialchars(json_encode($team), ENT_QUOTES) ?>)" style="background: var(--primary-subtle); border: none; color: var(--primary); cursor: pointer; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s;" title="Edit Team">✏️</button>
-                        <form method="POST" onsubmit="return confirm('Permanently remove this team and all associated data?');">
+
+                    <!-- View Mode Buttons -->
+                    <div id="view-actions-<?= $team['id'] ?>" style="display: flex; gap: 0.5rem;">
+                        <button onclick="toggleEdit(<?= $team['id'] ?>, true)" style="background: var(--primary-subtle); border: none; color: var(--primary); cursor: pointer; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s;" title="Edit Team">✏️</button>
+                        <form method="POST" onsubmit="return confirm('Permanently remove this team and all associated data?');" style="margin:0;">
                             <input type="hidden" name="delete_team" value="1">
                             <input type="hidden" name="team_id" value="<?= $team['id'] ?>">
                             <button type="submit" style="background: var(--danger-subtle); border: none; color: var(--danger); cursor: pointer; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; transition: all 0.2s;" title="Delete Team">&times;</button>
                         </form>
                     </div>
+
+                    <!-- Edit Mode Buttons -->
+                    <div id="edit-actions-<?= $team['id'] ?>" style="display: none; gap: 0.5rem;">
+                        <form method="POST" id="form-edit-<?= $team['id'] ?>" style="margin:0;">
+                            <input type="hidden" name="update_team" value="1">
+                            <input type="hidden" name="team_id" value="<?= $team['id'] ?>">
+                            <button type="submit" style="background: var(--success); border: none; color: white; cursor: pointer; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;" title="Save">✔️</button>
+                        </form>
+                        <button onclick="toggleEdit(<?= $team['id'] ?>, false)" style="background: var(--secondary); border: none; color: white; cursor: pointer; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem;" title="Cancel">❌</button>
+                    </div>
                 </div>
 
                 <div style="margin-bottom: 2rem;">
-                    <h4 style="font-size: 0.9375rem; color: var(--text-main); font-weight: 700; margin: 0 0 1rem 0; line-height: 1.4;"><?= htmlspecialchars($team['project_title']) ?></h4>
+                    <!-- Display Title -->
+                    <h4 id="view-title-<?= $team['id'] ?>" style="font-size: 0.9375rem; color: var(--text-main); font-weight: 700; margin: 0 0 1rem 0; line-height: 1.4;"><?= htmlspecialchars($team['project_title']) ?></h4>
+                    
+                    <!-- Edit Title Input -->
+                    <div id="edit-title-container-<?= $team['id'] ?>" style="display: none; margin-bottom: 1rem;">
+                        <label style="font-size: 0.65rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; display: block; margin-bottom: 0.25rem;">Project Title</label>
+                        <input type="text" name="project_title" form="form-edit-<?= $team['id'] ?>" 
+                               value="<?= htmlspecialchars($team['project_title']) ?>" class="form-control" 
+                               style="height: 48px; font-weight: 600;">
+                    </div>
                     <div style="display: grid; gap: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8125rem; color: var(--text-light); border: 1px solid var(--border); padding: 0.6rem 1rem; border-radius: 12px; background: var(--light);">
                             <span style="font-size: 1.1rem;">👤</span>
@@ -257,52 +285,26 @@ render_navbar($_SESSION['full_name'], 'dean', '../', "Capstone Groups");
     </div>
 </div>
 
-<!-- Edit Modal -->
-<div id="editModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1.5rem;">
-    <div class="card animate-fade-in" style="width: 100%; max-width: 500px; padding: 2.5rem; position: relative;">
-        <button onclick="closeEditModal()" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; color: var(--text-light); cursor: pointer;">&times;</button>
-        <h3 style="margin-bottom: 2rem; font-size: 1.5rem; letter-spacing: -0.01em;">Edit Team Profile</h3>
-        
-        <form method="POST">
-            <input type="hidden" name="update_team" value="1">
-            <input type="hidden" name="team_id" id="edit_team_id">
-            
-            <div class="form-group">
-                <label class="form-label" style="font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; color: var(--text-light);">Group Name</label>
-                <input type="text" name="team_name" id="edit_team_name" class="form-control" required style="height: 52px; border-radius: var(--radius-md);">
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" style="font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; color: var(--text-light);">Project Title</label>
-                <input type="text" name="project_title" id="edit_project_title" class="form-control" required style="height: 52px; border-radius: var(--radius-md);">
-            </div>
-            
-            <div style="margin-top: 2.5rem; display: flex; gap: 1rem;">
-                <button type="button" onclick="closeEditModal()" class="btn btn-secondary" style="flex: 1; height: 50px;">Cancel</button>
-                <button type="submit" class="btn btn-primary" style="flex: 2; height: 50px;">Update Team</button>
-            </div>
-        </form>
-    </div>
 </div>
 
 <script>
-function openEditModal(team) {
-    document.getElementById('edit_team_id').value = team.id;
-    document.getElementById('edit_team_name').value = team.team_name;
-    document.getElementById('edit_project_title').value = team.project_title;
+function toggleEdit(id, show) {
+    const displayStyle = show ? 'none' : 'block';
+    const editStyle = show ? 'block' : 'none';
+    const flexEditStyle = show ? 'flex' : 'none';
+    const flexDisplayStyle = show ? 'none' : 'flex';
+
+    // Header & Name
+    document.getElementById('view-name-' + id).style.display = displayStyle;
+    document.getElementById('edit-name-' + id).style.display = editStyle;
     
-    document.getElementById('editModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeEditModal() {
-    document.getElementById('editModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-window.onclick = function(event) {
-    const modal = document.getElementById('editModal');
-    if (event.target == modal) closeEditModal();
+    // Actions
+    document.getElementById('view-actions-' + id).style.display = flexDisplayStyle;
+    document.getElementById('edit-actions-' + id).style.display = flexEditStyle;
+    
+    // Title
+    document.getElementById('view-title-' + id).style.display = displayStyle;
+    document.getElementById('edit-title-container-' + id).style.display = editStyle;
 }
 </script>
 
